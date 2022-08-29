@@ -20,7 +20,7 @@ public:
 
 private:
 	void do_recive_filename();
-	void do_send_file(const string filename);
+	void do_send_file(char id,const string filename);
 
 	asio::ip::tcp::socket socket_;
 	char refile_name[1024] = { 0 };//接收名字的长度	
