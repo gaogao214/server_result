@@ -21,16 +21,21 @@ void upload_file_session::do_recive_filename()//接收文件名字
 		{
 			if (!ec)
 			{
-				std::size_t name_len = 0;
-				std::memcpy(&name_len, refile_name, sizeof(size_t));
-
-				std::string file_name(refile_name + sizeof(size_t));
+				//std::size_t id = 0;
+				//char file_name[32];
+				/*std::memcpy(&id, &refile_name, sizeof(size_t));
+				std::memcpy(file_name,&refile_name+s izeof(size_t), 8);*/
+			//	std::memcpy(&id,&refile_name,1);
+				
+				char id = refile_name[0];
+				size_t id_num = atoi(&id);
+				std::string file_name(refile_name +1/* sizeof(size_t)*/);
 				Sleep(2);
 
 				OutputDebugStringA(file_name.data());
 				OutputDebugString(L"\n");
 
-				do_send_file(file_name);
+				do_send_file(id,file_name);
 			}
 			
 			do_recive_filename();
@@ -39,7 +44,7 @@ void upload_file_session::do_recive_filename()//接收文件名字
 
 }
 
-void upload_file_session::do_send_file(const string filename)//发送文件内容
+void upload_file_session::do_send_file(char id,const string filename)//发送文件内容
 {
 	file_string.clear();
 	file_size = 0;
@@ -91,11 +96,12 @@ void upload_file_session::do_send_file(const string filename)//发送文件内容
 		
 			//std::memcpy(buffer, &file_size, 8);
 			//std::memcpy(buffer + 8, count_file_buf, file_size);
-			std::size_t sum_number = nleft + 8 + 16 ;
-			std::memcpy(buffer , &sum_number, 8);              //客户端需要接收的大小      
-			std::memcpy(buffer +8 , filename.data() , 16);      //名字
-			std::memcpy(buffer + 24, &nchunkcount , 8);
-			std::memcpy(buffer + 32 , count_file_buf, nleft);  //内容
+			std::size_t sum_number = nleft + 8 +1+ 16 ;
+			std::memcpy(buffer , &sum_number, 8);              //客户端需要接收的大小    
+			std::memcpy(buffer+8,&id,1);
+			std::memcpy(buffer +9 , filename.data() , 16);      //名字
+			std::memcpy(buffer + 25, &nchunkcount , 8);         //块数
+			std::memcpy(buffer + 33 , count_file_buf, nleft);  //内容
 
 			//std::memset(count_file_buf, 0, file_size);//清空内存
 			std::memset(count_file_buf, 0, nleft);//清空内存
@@ -126,12 +132,13 @@ void upload_file_session::do_send_file(const string filename)//发送文件内容
 		
 		//std::memcpy(buffer, &file_size, 8);
 		//std::memcpy(buffer + 8, count_file_buf, file_size);
-		std::size_t sum_number = nleft + 8 + 16 ;
+		std::size_t sum_number = nleft +8 +1 + 16 ;
 
 		std::memcpy(buffer , &sum_number, 8);
-		std::memcpy(buffer + 8 , filename.data(), 16);
-		std::memcpy(buffer + 24 , &total_num ,8 );
-		std::memcpy(buffer + 32 , count_file_buf, nleft);
+		std::memcpy(buffer+8,&id,1);
+		std::memcpy(buffer + 9 , filename.data(), 16);
+		std::memcpy(buffer + 25 , &total_num ,8 );
+		std::memcpy(buffer + 33 , count_file_buf, nleft);
 
 		//std::memset(count_file_buf, 0, file_size);//清空内存
 		std::memset(count_file_buf, 0, nleft);//清空内存
