@@ -21,6 +21,15 @@
       <UniqueIdentifier>{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}</UniqueIdentifier>
       <Extensions>ts</Extensions>
     </Filter>
+    <Filter Include="upload_file">
+      <UniqueIdentifier>{536a1733-370d-4fe1-b66d-95f83218066b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="upload_json">
+      <UniqueIdentifier>{f14f81d3-babf-4e01-8c3e-69665dcf233a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="wget_c_file">
+      <UniqueIdentifier>{88f51082-b319-4acf-9170-1469a9a3929d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="server_page.qrc">
@@ -40,9 +49,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="upload_json.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GxJsonUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,14 +58,14 @@
     <ClCompile Include="rapidjson_serialize.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="wget_load_file.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="upload_json_session.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>upload_json</Filter>
     </ClCompile>
-    <ClCompile Include="upload_file_server.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="upload_file_session.cpp">
+      <Filter>upload_file</Filter>
+    </ClCompile>
+    <ClCompile Include="wget_c_file_session.cpp">
+      <Filter>wget_c_file</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -71,25 +77,44 @@
     </Image>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="upload_json.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="GxJsonUtility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="basic_server.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="basic_session.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wget_load_file_server.h">
+      <Filter>wget_c_file</Filter>
+    </ClInclude>
     <ClInclude Include="upload_file_server.h">
+      <Filter>upload_file</Filter>
+    </ClInclude>
+    <ClInclude Include="upload_json_server.h">
+      <Filter>upload_json</Filter>
+    </ClInclude>
+    <ClInclude Include="file_struct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="wget_load_file.h">
+    <ClInclude Include="upload_json_session.h">
+      <Filter>upload_json</Filter>
+    </ClInclude>
+    <ClInclude Include="upload_file_session.h">
+      <Filter>upload_file</Filter>
+    </ClInclude>
+    <ClInclude Include="wget_c_file_session.h">
+      <Filter>wget_c_file</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\share\request.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <QtMoc Include="upload_json_session.h">
+    <ClInclude Include="..\..\share\response.hpp">
       <Filter>Header Files</Filter>
-    </QtMoc>
+    </ClInclude>
   </ItemGroup>
 </Project>

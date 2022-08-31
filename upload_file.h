@@ -5,7 +5,7 @@
 #include "common.h"
 #include "GxJsonUtility.h"
 #include "rapidjson/filereadstream.h"
-#include "upload_json.h"
+#include "upload_json_session.h"
 #define SEND_COUNT_SIZE 4096
 using namespace std;
 using namespace asio::ip;

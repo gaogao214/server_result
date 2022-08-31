@@ -60,7 +60,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>E:\Object_gao\File_up_download\profile\Asio;E:\Object_gao\File_up_download\profile\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Object_gao\File_up_download\profile\Asio;E:\Object_gao\File_up_download\profile\include;E:\Object_gao\File_up_download\qt_object\share;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
     </ClCompile>
@@ -98,12 +98,9 @@
     <ClCompile Include="GxJsonUtility.cpp" />
     <ClCompile Include="rapidjson_deserialize.cpp" />
     <ClCompile Include="rapidjson_serialize.cpp" />
-    <ClCompile Include="upload_file_server.cpp" />
-    <ClCompile Include="upload_json.cpp" />
+    <ClCompile Include="upload_file_session.cpp" />
     <ClCompile Include="upload_json_session.cpp" />
-    <ClCompile Include="wget_load_file.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="wget_c_file_session.cpp" />
     <QtRcc Include="server_page.qrc" />
     <QtUic Include="server_page.ui" />
     <QtMoc Include="server_page.h" />
@@ -115,12 +112,19 @@
     <Image Include="images\server.ico" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\share\request.hpp" />
+    <ClInclude Include="..\..\share\response.hpp" />
+    <ClInclude Include="basic_server.h" />
+    <ClInclude Include="basic_session.hpp" />
     <ClInclude Include="common.h" />
+    <ClInclude Include="file_struct.h" />
     <ClInclude Include="GxJsonUtility.h" />
     <ClInclude Include="upload_file_server.h" />
-    <ClInclude Include="upload_json.h" />
-    <QtMoc Include="upload_json_session.h" />
-    <ClInclude Include="wget_load_file.h">
+    <ClInclude Include="upload_file_session.h" />
+    <ClInclude Include="upload_json_server.h" />
+    <ClInclude Include="upload_json_session.h" />
+    <ClInclude Include="wget_c_file_session.h" />
+    <ClInclude Include="wget_load_file_server.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</ExcludedFromBuild>
     </ClInclude>
   </ItemGroup>

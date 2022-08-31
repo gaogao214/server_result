@@ -5,7 +5,7 @@
 #include <sstream>
 
 
-
+template<typename _Session>
 class basic_server :public QObject
 {
 	//Q_OBJECT
@@ -19,70 +19,12 @@ public:
 	}
 
 public:
-	template<std::size_t I, typename _Handle>
-	void async_write(std::array<char, I> buffer, _Handle&& handle)
-	{
-		asio::async_write(socket_, asio::buffer(buffer), std::forward<_Handle>(handle));
-	}
-
-	template<typename _Handle>
-	void async_write(const std::string& buffer, _Handle&& handle)
-	{
-		asio::async_write(socket_, asio::buffer(buffer), std::forward<_Handle>(handle));
-	}
-
-
 	void close()
 	{
 		socket_.close();
 	}
 
-protected:
-	virtual int read_handle() = 0;
-
-
 private:
-	void do_read_header()
-	{
-
-		asio::async_read(socket_, asio::buffer(buffer_, sizeof(size_t)),
-			[this](std::error_code ec, std::size_t)
-			{
-				if (ec)
-				{
-					return;
-				}
-
-				std::size_t receive_length{};
-
-				std::memcpy(&receive_length, &buffer_, sizeof(std::size_t));
-
-
-				do_read_body(receive_length);
-
-			});
-
-	}
-
-	void do_read_body(std::size_t length)
-	{
-
-		asio::async_read(socket_, asio::buffer(buffer_, length),
-			[this](std::error_code ec, std::size_t bytes_transferred)
-			{
-				if (!ec)
-				{
-					read_handle();
-
-					do_read_header();
-				}
-
-				buffer_.fill(0);
-
-				do_read_header();
-			});
-	}
-
 	void do_accept()
 	{
 		acceptor_.async_accept(
@@ -90,11 +32,11 @@ private:
 			{
 				if (!ec)
 				{
-					do_read_header();
+					auto s = std::make_shared<_Session>(std::move(socket));
+					s->start();
+					sessions_.push_back(s);
 				}
 					
-
-				//emit signal_connect();
 				do_accept();
 			});
 	}
@@ -109,5 +51,6 @@ private:
 	asio::ip::tcp::acceptor acceptor_;
 	asio::io_context& io_context_;
 
+	std::vector<std::shared_ptr<_Session>> sessions_;
 };
 
