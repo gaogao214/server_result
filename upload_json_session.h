@@ -17,7 +17,9 @@ extern filestruct::profile profile_;
 
 class server_page;
 
-class upload_json_session:public basic_session
+class upload_json_session
+	:public basic_session
+	, public std::enable_shared_from_this<upload_json_session>
 {
 
 public:
@@ -45,7 +47,7 @@ public:
 	void delete_all_ip_port();
 
 protected:
-	virtual int read_handle()  override;
+	virtual int read_handle(uint32_t id)  override;
 
 private:
 
@@ -61,6 +63,11 @@ private:
 
 	void save_file_server_ip_port_id_json();//在id.json里添加传输(a.txt...)的服务器ip port
 
+public:
+	void run()
+	{
+	
+	}
 private:
 
 

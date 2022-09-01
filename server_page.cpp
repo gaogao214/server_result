@@ -5,7 +5,7 @@
 #include "wget_c_file_session.h"
 #include <QPushbutton>
 #include <QPainter>
-#include "upload_file.h"
+#include "upload_file_server.h"
 server_page::server_page(QWidget* parent)
 	: QMainWindow(parent)
 {
@@ -34,20 +34,20 @@ void server_page::start_connect()
 
 void server_page::do_profile_upload()
 {
-	//main_thread_ptr_.reset(new std::thread([this]()
-	//	{
-	//		ui.text_log->insertPlainText(u8"按钮被按下\n");
-	//		asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), std::atoi("12312"));
-	//		uj_ = std::make_shared<upload_json_session>(io_context, endpoint/*, this*/);
-	//		QMetaObject::Connection connect_text_log=connect(uj_.get(),SIGNAL(sign_text_log(QString)),this,SLOT(show_text_log(QString)),Qt::QueuedConnection);
-	//		if (connect_text_log)
-	//		{
-	//			ui.text_log->insertPlainText(u8"text log 信号与槽函数连接成功\n");
-	//		}
-	//		uj_->run();
-	//	}));
+	main_thread_ptr_.reset(new std::thread([this]()
+		{
+			ui.text_log->insertPlainText(u8"按钮被按下\n");
+			asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), std::atoi("12312"));
+			uj_ = std::make_shared<upload_json_server>(io_context, endpoint/*, this*/);
+			/*QMetaObject::Connection connect_text_log=QObject::connect(uj_.get(),SIGNAL(sign_text_log(QString)),this,SLOT(show_text_log(QString)),Qt::QueuedConnection);
+			if (connect_text_log)
+			{
+				ui.text_log->insertPlainText(u8"text log 信号与槽函数连接成功\n");
+			}*/
+			uj_->run();
+		}));
 
-	//main_thread_ptr_->detach();
+	main_thread_ptr_->detach();
 }
 
 void server_page::create_reset_upload()
@@ -67,16 +67,16 @@ void server_page::create_reset_upload()
 
 void server_page::do_upload_file()
 {
-	/*std::thread t2([this]()
+	std::thread t2([this]()
 		{
 			asio::ip::tcp::endpoint _endpoint(asio::ip::tcp::v4(), std::atoi("12314"));
 
-			auto cs = std::make_shared<upload_file>(io_context_upload, _endpoint);
+			auto cs = std::make_shared<upload_file_server>(io_context_upload, _endpoint);
 			
 			io_context_upload.run();
 		});
 
-	t2.detach();*/
+	t2.detach();
 
 }
 

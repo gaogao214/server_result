@@ -17,32 +17,11 @@ void upload_json_session::start()
     save_file_server_ip_port_id_json();     //ÔÚid.jsonÀïÌí¼Ó±¾µØÅäÖÃÎÄ¼şÖĞµÄip port ´«Êä(a.txt...)µÄ·şÎñÆ÷ip port
 }
 
-//void  upload_json_session::do_opendir()          //´ò¿ªÅäÖÃÎÄ¼ş£¬²¢ÕÒµ½ÅäÖÃÎÄ¼şÖĞµÄÂ·¾¶,²é¿´Â·¾¶ÏÂµÄÎÄ¼ş»òÎÄ¼şÃû
-//{
-//    string readbuffer = open_json_file(profile_name);
-//    profile_.deserializeFromJSON(readbuffer.c_str());
-//}
-
 void  upload_json_session::parse_id_json()          //´ò¿ªid_jsonÎÄ¼ş ½âÎöid.jsonµÃµ½IP port
 {
     string readbuffer = open_json_file(id_name);
     files_id.deserializeFromJSON(readbuffer.c_str());
 }
-
-//std::string upload_json_session::open_json_file(const std::string& json_name)//´ò¿ªÖ¸¶¨Ãû³ÆµÄjsonÎÄ±¾
-//{
-//    std::string content{};
-//    std::string tmp{};
-//    std::fill(content.begin(), content.end(), 0);       //Çå¿Õ
-//    fstream ifs(json_name, std::ios::in | std::ios::binary);
-//    if (!ifs.is_open())
-//        return {};
-//    while (std::getline(ifs, tmp))
-//    {
-//        content.append(tmp);
-//    }
-//    return content;
-//}
 
 void upload_json_session::delete_all_ip_port()          //ÔÚ³ÌĞò¿ªÊ¼Ö®Ç°  É¾³ı id.jsonÖĞµÄIP port
 {
@@ -61,7 +40,7 @@ void upload_json_session::save_file_server_ip_port_id_json()//ÔÚid.jsonÀïÌí¼Ó´«Ê
 {
 
     filestruct::ip_and_port first_ip_port;
-  //  first_ip_port.ip = socket_.local_endpoint().address().to_string();//·şÎñÆ÷´«ÊäÎÄ¼şµÄip
+    first_ip_port.ip = socket_.local_endpoint().address().to_string();//·şÎñÆ÷´«ÊäÎÄ¼şµÄip
     first_ip_port.port = profile_.port;//·şÎñÆ÷´«ÊäÎÄ¼şµÄport
     for (auto& iter : files_id.blocks)
     {
@@ -116,8 +95,9 @@ void upload_json_session::do_send_list()//·¢ËÍlist.json
     name_text_response res;
    
     res.body_.set_name_text(list_name,list_buf);
-
-    this->async_write(std::move(res),[this](std::error_code ec, std::size_t sz)
+    auto self = shared_from_this();
+    async_write(std::move(res),
+        [this](std::error_code ec, std::size_t sz)
             {
                 if (!ec)
                 {
@@ -125,7 +105,7 @@ void upload_json_session::do_send_list()//·¢ËÍlist.json
                    // ser_ptr_->ui.text_log->append(u8"ÉÏ´«list.hsonÎÄ¼ş");
                     OutputDebugString(L"·¢ËÍlist.json");
 
-                    cout << list_name << "·¢ËÍ³É¹¦\n";
+                    //cout << self->list_name << "·¢ËÍ³É¹¦\n";
                     do_send_id();//·¢ËÍid.jsonÃû×Ö
                 }
             });
@@ -173,7 +153,7 @@ void upload_json_session::do_send_id()//·¢ËÍid.jsonÃû×ÖºÍÄÚÈİ
 
                     cout << id_name << "·¢ËÍ³É¹¦!\n";
                     cout << "ÄÚÈİ >: " << send_id_file << endl;
-                    recive_id_port();//½ÓÊÕ±ä³É·şÎñ¶ËµÄid ip port
+                   // recive_id_port();//½ÓÊÕ±ä³É·şÎñ¶ËµÄid ip port
                 }
             });
     //asio::async_write(socket_, asio::buffer(/*send_id_file.data(), send_id_file.size()*/buffer, 8 + id_name_text_size),
@@ -192,13 +172,13 @@ void upload_json_session::do_send_id()//·¢ËÍid.jsonÃû×ÖºÍÄÚÈİ
 
 void upload_json_session::recive_id_port()//½ÓÊÕ±ä³É·şÎñ¶ËµÄid port
 {
-    id_port_request req;
-    req.parse_bytes(buffer_);
-   // save_ip_port.ip = socket_.local_endpoint().address().to_string();
-    id = req.body_.id_;
-    save_ip_port.port = req.body_.port_;
-    files_id.blocks[id].server.insert(save_ip_port);
-    save_json_file(files_id, id_name);//±£´æid.json ÎÄ¼ş
+   // id_port_request req;
+   // req.parse_bytes(buffer_);
+   //// save_ip_port.ip = socket_.local_endpoint().address().to_string();
+   // id = req.body_.id_;
+   // save_ip_port.port = req.body_.port_;
+   // files_id.blocks[id].server.insert(save_ip_port);
+   // save_json_file(files_id, id_name);//±£´æid.json ÎÄ¼ş
      
      
     // 
@@ -236,6 +216,20 @@ void upload_json_session::recive_id_port()//½ÓÊÕ±ä³É·şÎñ¶ËµÄid port
     //    });
 }
 
+
+int upload_json_session::read_handle(uint32_t id)
+{
+    id_port_request req;
+    req.parse_bytes(buffer_);
+    // save_ip_port.ip = socket_.local_endpoint().address().to_string();
+    id = req.body_.id_;
+    save_ip_port.port = req.body_.port_;
+    files_id.blocks[id].server.insert(save_ip_port);
+    save_json_file(files_id, id_name);//±£´æid.json ÎÄ¼ş
+
+
+    return  0;
+}
 void upload_json_session::delete_ip_port(filestruct::ip_and_port delete_ip_port)//É¾³ı·şÎñ¶ËÏÂÏßµÄip port  
 {
     for (auto& iter : files_id.blocks)

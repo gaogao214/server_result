@@ -8,10 +8,11 @@
 #include <fstream>
 #include <filesystem>
 #include "rapidjson/filereadstream.h"
-#include "basic_server.h"
 #include "file_struct.h"
+#include "basic_server.h"
 #include "upload_json_session.h"
 using namespace std;
+
 
 
 class server_page;
@@ -22,7 +23,7 @@ class upload_json_server
 	
 public:
 		upload_json_server(asio::io_context& io_context, const asio::ip::tcp::endpoint& endpoint)
-		:basic_server(io_context, endpoint)
+		:basic_server<upload_json_session>(io_context, endpoint)
 	{
 	
 	}

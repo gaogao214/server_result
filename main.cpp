@@ -5,6 +5,8 @@
 #include "server_page.h"
 #include <QStyleFactory>
 #include <Qimage>
+
+
 int main(int argc, char *argv[]){
     system("del wget_c_file.json");
 

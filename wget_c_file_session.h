@@ -29,7 +29,7 @@ public:
 
 	void recive_wget_c_file_name();
 
-	void recive_wget_c_file(const string& file);
+
 
 	void do_wget_c_file(const string& file_name);
 
@@ -39,7 +39,7 @@ public:
 	//void send_file_file(const string& file_path_name,size_t remaining_total,int wget_offset, const string& wget_name, std::promise<bool>& promise);
 
 protected:
-	virtual int read_handle()  override;
+	virtual int read_handle(uint32_t id)  override;
 
 private:
 

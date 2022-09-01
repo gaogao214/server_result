@@ -20,17 +20,17 @@ public:
 	{
 	
 	}
-	void start();
+
 
 
 
 private:
 	void do_recive_filename();
-	void do_send_file(char id, const string filename);
+	void do_send_file(char id, const string& filename);
 
 
 protected:
-	virtual int read_handle()  override;
+	virtual int read_handle(uint32_t id)  override;
 
 private:
 	

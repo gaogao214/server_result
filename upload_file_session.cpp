@@ -5,20 +5,9 @@
 #include "request.hpp"
 //upload_json_session* upload_file_json = nullptr;
 
-void upload_file_session::start()
-{
-	do_recive_filename();
-}
 
 void upload_file_session::do_recive_filename()//接收文件名字
 {
-	id_name_request req;
-	req.parse_bytes(buffer_);
-	auto id = req.body_.id_;
-	auto file_name = req.body_.name_;
-
-
-	do_send_file(id, file_name);
 	//std::memset(refile_name, 0, 1024);//清空内存
 	//socket_.async_read_some(asio::buffer(refile_name, 1024),
 	//	[this](std::error_code ec, std::size_t sz)
@@ -44,11 +33,35 @@ void upload_file_session::do_recive_filename()//接收文件名字
 
 	//		do_recive_filename();
 	//	});
-	Sleep(2);
+	//Sleep(2);
 
 }
 
-void upload_file_session::do_send_file(char id, const string filename)//发送文件内容
+
+int upload_file_session::read_handle(uint32_t id)
+{
+	switch (id)
+	{
+	case 1002:
+
+		id_name_request req;
+		req.parse_bytes(buffer_);
+		auto _id = req.body_.id_;
+		auto file_name = req.body_.name_;
+
+
+		do_send_file(_id, file_name);
+		Sleep(2);
+
+
+		break;
+	}
+
+
+	return 0;
+}
+
+void upload_file_session::do_send_file(char id, const string& filename)//发送文件内容
 {
 	file_string.clear();
 	file_size = 0;
@@ -84,11 +97,17 @@ void upload_file_session::do_send_file(char id, const string filename)//发送文件
 		{
 			if (i + 1 == nchunkcount)
 			{
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(200ms);
 				nleft = file_size - send_count_size * (nchunkcount - 1);
+				
 			}
 			else
 			{
+				using namespace std::chrono_literals;
+				std::this_thread::sleep_for(200ms);
 				nleft = send_count_size;
+				
 			}
 			char* count_file_buf = new char[nleft];
 
@@ -109,6 +128,7 @@ void upload_file_session::do_send_file(char id, const string filename)//发送文件
 
 
 			id_text_response it_resp;
+			it_resp.header_.length_ = nleft;
 			std::memcpy(it_resp.header_.name_, filename.data(), filename.size());
 			it_resp.header_.totoal_ = nchunkcount;
 			it_resp.body_.id_ = id;
@@ -163,7 +183,10 @@ void upload_file_session::do_send_file(char id, const string filename)//发送文件
 
 
 		id_text_response it_resp;
+		std::memset(it_resp.header_.name_, 0, 32);//清空内存
+
 		std::memcpy(it_resp.header_.name_, filename.data(), filename.size());
+		it_resp.header_.length_ = nleft;
 		it_resp.header_.totoal_ = total_num;
 		it_resp.body_.id_ = id;
 		it_resp.body_.set_const_text_(count_file_buf);

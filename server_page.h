@@ -2,7 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_server_page.h"
-#include "upload_json_session.h"
+#include "upload_json_server.h"
 
 
 class server_page : public QMainWindow
@@ -29,7 +29,7 @@ public slots:    //²Ûº¯Êý
 
 private:
     //Ui::server_pageClass ui;
-    std::shared_ptr<upload_json_session> uj_;
+    std::shared_ptr<upload_json_server> uj_;
 
     std::shared_ptr<std::thread> main_thread_ptr_;
 

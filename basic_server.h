@@ -3,8 +3,6 @@
 #include "asio.hpp"
 #include <QObject>
 #include <sstream>
-
-
 template<typename _Session>
 class basic_server :public QObject
 {
@@ -24,6 +22,10 @@ public:
 		socket_.close();
 	}
 
+	void run()
+	{
+		io_context_.run();
+	}
 private:
 	void do_accept()
 	{

@@ -35,38 +35,10 @@ void wget_c_file_session::recive_wget_c_file_name()
 
 }
 
-/*接收断点续传的文件*/
-void wget_c_file_session::recive_wget_c_file(const string& file_name)
+int wget_c_file_session::read_handle(uint32_t id)
 {
-	//auto self = shared_from_this();
-	//asio::async_read(socket_, asio::buffer(refile_file_len, sizeof(size_t)),   //接收断点续传文件的内容
-	//socket_.async_read_some(asio::buffer(refile_file_len, sizeof(size_t)),   //接收断点续传文件的内容
-	//	[self, this, file_name](std::error_code ec, std::size_t)
-	//	{
-	//		if (!ec)
-	//		{
-	//			memcpy(&buf_len, refile_file_len, sizeof(size_t));   //文件的大小
-	//			cout << "buf_len  " << buf_len << endl;
-	//			wget_c_file_text.resize(buf_len);
 
-	//			//asio::async_read(socket_, asio::buffer(wget_c_file_text, buf_len),   //接收
-	//			socket_.async_read_some(asio::buffer(wget_c_file_text, buf_len),   //接收
-	//				[self, this, file_name](std::error_code ec, std::size_t)
-	//				{
-	//					if (!ec)
-	//					{
-	//						const char* readbufs = wget_c_file_text.data();
-	//						ofstream wget_c_file(file_name.data(), ios::binary);
-	//						wget_c_file.write(wget_c_file_text.c_str(), buf_len);
-	//						wget_c_file.close();
-	//						cout << file_name.data() << "文件接收成功\n";
-	//						do_wget_c_file(file_name);
-	//					}
-	//					send_file();
-
-	//				});
-	//		}
-	//	});
+	return 0;
 }
 
 /*解析json文件*/
