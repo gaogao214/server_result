@@ -8,7 +8,8 @@
 
 
 int main(int argc, char *argv[]){
-    system("del wget_c_file.json");
+  
+    std::filesystem::remove("wget_c_file.json");
 
     QApplication a(argc, argv);
     server_page w;

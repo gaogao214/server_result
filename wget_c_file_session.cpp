@@ -117,8 +117,8 @@ void wget_c_file_session::send_file()
 					file.read(count_file_buf, nleft_);            //¶Á4096¸ö×Ö·û
 
 
-					char buffer_[8192 + 1024] = { 0 };
-					std::size_t sum_size_ = nleft_ + 8 + 8 + 8;
+					//char buffer_[8192 + 1024] = { 0 };
+					//std::size_t sum_size_ = nleft_ + 8 + 8 + 8;
 
 					//std::memcpy(buffer_, &sum_size_, 8);         //×Ö·û´®×Ü³¤¶È £¨Ãû×Ö  ×ÜÐòºÅ  Æ«ÒÆÁ¿  ÄÚÈÝ£©
 					//std::memcpy(buffer_ + 8, wget_name.data(), 8);
@@ -158,10 +158,10 @@ void wget_c_file_session::send_file()
 				char* count_file_buf = new char[remaining_total];
 				file.read(count_file_buf, remaining_total);            //¶Áremaining_total¸ö×Ö·û
 
-				char buffer[8192] = { 0 };
+				//char buffer[8192] = { 0 };
 				std::size_t total_num = 1;
 
-				std::size_t sum_number = remaining_total + 8 + 8 + 8;
+				//std::size_t sum_number = remaining_total + 8 + 8 + 8;
 
 			/*	std::memcpy(buffer, &sum_number, 8);
 				std::memcpy(buffer + 8, wget_name.data(), 8);
