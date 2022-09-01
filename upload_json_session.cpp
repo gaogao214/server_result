@@ -1,7 +1,4 @@
 #include "upload_json_session.h"
-
-
-#include "upload_json_server.h"
 #include "server_page.h"
 #include "ui_server_page.h"
 #include "server_page.h"
@@ -9,19 +6,6 @@
 #include "response.hpp"
 
 
-void upload_json_session::start()
-{
-    delete_all_ip_port();
-    do_opendir();
-    parse_id_json();
-    save_file_server_ip_port_id_json();     //ÔÚid.jsonÀïÌí¼Ó±¾µØÅäÖÃÎÄ¼şÖĞµÄip port ´«Êä(a.txt...)µÄ·şÎñÆ÷ip port
-}
-
-void  upload_json_session::parse_id_json()          //´ò¿ªid_jsonÎÄ¼ş ½âÎöid.jsonµÃµ½IP port
-{
-    string readbuffer = open_json_file(id_name);
-    files_id.deserializeFromJSON(readbuffer.c_str());
-}
 
 void upload_json_session::delete_all_ip_port()          //ÔÚ³ÌĞò¿ªÊ¼Ö®Ç°  É¾³ı id.jsonÖĞµÄIP port
 {
@@ -29,10 +13,9 @@ void upload_json_session::delete_all_ip_port()          //ÔÚ³ÌĞò¿ªÊ¼Ö®Ç°  É¾³ı i
     parse_id_json();
     for (auto& iter : files_id.blocks)
     {
-        //  iter.server.erase(iter.server.begin(), iter.server.end());
         iter.second.server.erase(iter.second.server.begin(), iter.second.server.end());
     }
-    save_json_file(files_id, id_name);//±£´æ  id.jsonÎÄ¼ş
+    save_json_file(files_id, id_name_);//±£´æ  id.jsonÎÄ¼ş
     parse_id_json();
 }
 
@@ -47,212 +30,91 @@ void upload_json_session::save_file_server_ip_port_id_json()//ÔÚid.jsonÀïÌí¼Ó´«Ê
         // iter.server.insert(first_ip_port);//Ó¦¸ÃÓÃÒ»¸ö¼¯ºÏ
         iter.second.server.insert(first_ip_port);//Ó¦¸ÃÓÃÒ»¸ö¼¯ºÏ
     }
-    save_json_file(files_id, id_name); //±£´æid.jsonÎÄ¼ş
+    save_json_file(files_id, id_name_); //±£´æid.jsonÎÄ¼ş
     do_send_list();
-}
-
-int upload_json_session::get_file_len(const std::string& filename)//»ñÈ¡ÎÄ±¾µÄ³¤¶È
-{
-    ifstream infile(filename.c_str());
-    infile.seekg(0, ios_base::end);
-    int fsize = infile.tellg();//list.jsonÎÄ±¾µÄ´óĞ¡
-    infile.close();
-    return fsize;
-}
-
-std::string upload_json_session::get_file_context(const std::string& filename)//»ñÈ¡ÎÄ±¾µÄÄÚÈİ
-{
-
-    ifstream File(filename.c_str());
-    char file_buf = '0';//list.jsonÎÄ¼ş
-    string buf;//Ò»¸öÒ»¸ö¶ÁÖ®ºó´æÔÚÕâÀï£¬list.jsonÎÄ±¾
-    while (File.get(file_buf))
-    {
-        buf.push_back(file_buf);
-    }
-    File.close();
-    return buf;
 }
 
 void upload_json_session::do_send_list()//·¢ËÍlist.json
 {
-
-
-
-    std::string list_buf = get_file_context(list_name);
-    //string list_parse = "0" + list_name + "*" + list_buf;
-    //size_t list_name_text_size = list_parse.size();
-    //list_name_text.resize(list_name_text_size + sizeof(size_t));
-    ////std::memcpy(list_name_text.data(), &list_name_text_size, sizeof(size_t));
-    //sprintf(&list_name_text[0], "%zd", list_name_text_size);
-
-    //sprintf(&list_name_text[sizeof(size_t)], "%s", list_parse.c_str());
-
-    //char buffer[4096] = { 0 };
-    //std::memcpy(buffer, &list_name_text_size, sizeof(std::size_t));
-    //std::memcpy(buffer + 8, list_parse.data(), list_parse.size());
+    std::string list_buf = get_file_context(list_name_);
 
     name_text_response res;
    
-    res.body_.set_name_text(list_name,list_buf);
+    res.body_.set_name_text(list_name_,list_buf);
     auto self = shared_from_this();
     async_write(std::move(res),
         [this](std::error_code ec, std::size_t sz)
             {
                 if (!ec)
                 {
-                    //ser_ptr_->ui.text_log->insertPlainText(u8"ÉÏ´«list.jsonÎÄ¼ş\n");
-                   // ser_ptr_->ui.text_log->append(u8"ÉÏ´«list.hsonÎÄ¼ş");
                     OutputDebugString(L"list.json ·¢ËÍ³É¹¦\n");
 
-                    //cout << self->list_name << "·¢ËÍ³É¹¦\n";
-                    do_send_id();//·¢ËÍid.jsonÃû×Ö
+                    do_send_id();
                 }
             });
-
-    //asio::async_write(socket_, asio::buffer(/*list_name_text.data(), list_name_text.size()*/buffer, 8 + list_name_text_size),
-    //    [this](std::error_code ec, std::size_t sz)
-    //    {
-    //        if (!ec)
-    //        {
-    //            //ser_ptr_->ui.text_log->insertPlainText(u8"ÉÏ´«list.jsonÎÄ¼ş\n");
-    //           // ser_ptr_->ui.text_log->append(u8"ÉÏ´«list.hsonÎÄ¼ş");
-    //            OutputDebugString(L"·¢ËÍlist.json");
-
-    //            cout << list_name << "·¢ËÍ³É¹¦\n";
-    //            do_send_id();//·¢ËÍid.jsonÃû×Ö
-    //        }
-    //    });
-    
 }
 
-void upload_json_session::do_send_id()//·¢ËÍid.jsonÃû×ÖºÍÄÚÈİ
+void upload_json_session::do_send_id()
 {
 
-    std::string id_buf = get_file_context(id_name);//»ñÈ¡ÎÄ¼şµÄÄÚÈİ
-    //std::string id_name_text = "1" + id_name + "*" + id_buf; //°ÑÃû×ÖºÍÄÚÈİÆ´½ÓÔÚÒ»Æğ
-    //size_t id_name_text_size = id_name_text.size();     //¼ÆËã³öÆ´½ÓºóµÄ×Ö·û´®³¤¶Ès
-    //send_id_file.resize(id_name_text_size + sizeof(size_t));
-    ////std::memcpy(send_id_file.data(), &id_name_text_size, sizeof(size_t));
-    //sprintf(&send_id_file[0], "%zd", id_name_text_size);
-
-    //sprintf(&send_id_file[sizeof(size_t)], "%s", id_name_text.c_str());
-
-    //char buffer[4096] = { 0 };
-    //std::memcpy(buffer, &id_name_text_size, 8);
-    //std::memcpy(buffer + 8, id_name_text.data(), id_name_text.size());
+    std::string id_buf = get_file_context(id_name_);//»ñÈ¡ÎÄ¼şµÄÄÚÈİ
 
     name_text_response resp;
-    resp.body_.set_name_text(id_name,id_buf);
+    resp.body_.set_name_text(id_name_,id_buf);
 
     this->async_write(std::move(resp),[this](std::error_code ec, std::size_t sz)
             {
                 if (!ec)
                 {
-                    //ser_ptr_->ui.text_log->insertPlainText(u8"ÉÏ´«id.jsonÎÄ¼ş\n");
-
                     OutputDebugString(L"id.json ·¢ËÍ³É¹¦\n");
-
-                   // recive_id_port();//½ÓÊÕ±ä³É·şÎñ¶ËµÄid ip port
                 }
             });
-    //asio::async_write(socket_, asio::buffer(/*send_id_file.data(), send_id_file.size()*/buffer, 8 + id_name_text_size),
-    //    [this](std::error_code ec, std::size_t sz)
-    //    {
-    //        if (!ec)
-    //        {
-    //            //ser_ptr_->ui.text_log->insertPlainText(u8"ÉÏ´«id.jsonÎÄ¼ş\n");
-
-    //            cout << id_name << "·¢ËÍ³É¹¦!\n";
-    //            cout << "ÄÚÈİ >: " << send_id_file << endl;
-    //            recive_id_port();//½ÓÊÕ±ä³É·şÎñ¶ËµÄid ip port
-    //        }
-    //    });
 }
-
-void upload_json_session::recive_id_port()//½ÓÊÕ±ä³É·şÎñ¶ËµÄid port
-{
-   // id_port_request req;
-   // req.parse_bytes(buffer_);
-   //// save_ip_port.ip = socket_.local_endpoint().address().to_string();
-   // id = req.body_.id_;
-   // save_ip_port.port = req.body_.port_;
-   // files_id.blocks[id].server.insert(save_ip_port);
-   // save_json_file(files_id, id_name);//±£´æid.json ÎÄ¼ş
-     
-     
-    // 
-    //socket_.async_read_some(asio::buffer(id_port, 1024),
-    //    [this](std::error_code ec, std::size_t)
-    //    {
-    //        if (!ec)
-    //        {
-    //            size_t buf_len = 0;
-    //            std::memcpy(&buf_len, id_port, sizeof(size_t));//´Ó id_port¸´ÖÆsizeof(size_t)¸ö×Ö½Úµ½´æ´¢Çø buf_len
-    //            std::string id_port_text(id_port + sizeof(size_t));//°ÑÄÚÈİ´æµ½ip_port_text                 
-
-    //            string request(id_port_text);
-    //            auto pos = request.find_first_of(',');
-    //            if (pos == string::npos)
-    //                return;
-    //            auto id1 = request.substr(0, pos);
-    //            auto port1 = request.substr(pos + 1);
-    //            cout << "id1====   " << id1 << "   port1====   " << port1 << endl;
-    //            id = atoi(id1.c_str());
-    //            save_ip_port.ip = socket_.local_endpoint().address().to_string();
-    //            save_ip_port.port = port1;
-    //            files_id.blocks[id].server.insert(save_ip_port);
-    //            save_json_file(files_id, id_name);//±£´æid.json ÎÄ¼ş
-    //            recive_id_port();
-
-    //            /* id_port_request req{};
-    //             req.parse_bytes(id_port);*/
-
-    //        }
-    //        else {
-    //            cout << "ip port : " << save_ip_port.ip << "  " << save_ip_port.port << "¶Ï¿ªÁ¬½Ó\n";//ÏÂÔØÍêÏÂÏß£¬°Ñip portÉ¾³ıµô                      
-    //            delete_ip_port(save_ip_port);
-    //        }
-    //    });
-}
-
 
 int upload_json_session::read_handle(uint32_t id)
 {
-    id_port_request req;
-    req.parse_bytes(buffer_);
-    // save_ip_port.ip = socket_.local_endpoint().address().to_string();
-    id = req.body_.id_;
-    save_ip_port.port = req.body_.port_;
-    files_id.blocks[id].server.insert(save_ip_port);
-    save_json_file(files_id, id_name);//±£´æid.json ÎÄ¼ş
+    switch (id)
+    {
+    case request_number::id_port_request:
 
+        filestruct::ip_and_port save_ip_port;
+
+        id_port_request req;
+        req.parse_bytes(buffer_);
+
+        id = req.body_.id_;
+        save_ip_port.port = req.body_.port_;
+        files_id.blocks[id].server.insert(save_ip_port);
+        save_json_file(files_id, id_name_);
+
+        break;
+    }
+   
 
     return  0;
 }
-void upload_json_session::delete_ip_port(filestruct::ip_and_port delete_ip_port)//É¾³ı·şÎñ¶ËÏÂÏßµÄip port  
+void upload_json_session::delete_ip_port(filestruct::ip_and_port delete_ip_port)
 {
     for (auto& iter : files_id.blocks)
     {
         auto tempIter = std::find_if(iter.second.server.begin(), iter.second.server.end(),
-            //  auto tempIter = std::find_if(iter.server.begin(), iter.server.end(),
-            [&delete_ip_port](const filestruct::ip_and_port& val)//ÔÚÕâ¸ö·¶Î§ÄÚÕÒ ip port
+            [&delete_ip_port](const filestruct::ip_and_port& val)
             {
                 return val.ip == delete_ip_port.ip && val.port == delete_ip_port.port;
             });
-        // if (tempIter == iter.server.end())//Ã»ÓĞÕÒµ½
-        if (tempIter == iter.second.server.end())//Ã»ÓĞÕÒµ½
+
+        if (tempIter == iter.second.server.end())
             continue;
-        iter.second.server.erase(tempIter);//ÕÒµ½ÔòÉ¾³ı
-        //iter.server.erase(tempIter);//ÕÒµ½ÔòÉ¾³ı
+
+        iter.second.server.erase(tempIter);
     }
-    save_json_file(files_id, id_name); //±£´æid.json         
+    save_json_file(files_id, id_name_);     
 }
 
-void upload_json_session::save_json_file(filestruct::files_Server files_id, const string& name)  //±£´æjsonÎÄ¼ş
+void upload_json_session::save_json_file(filestruct::files_Server files_id, const std::string& name)
 {
-    string text = RapidjsonToString(files_id.serializeToJSON());
-    gsh(text);
+    std::string text = RapidjsonToString(files_id.serializeToJSON());
+    json_formatting(text);
     auto file = fopen(name.c_str(), "wb");
     const char* t = text.c_str();
     size_t length = text.length();
@@ -261,39 +123,3 @@ void upload_json_session::save_json_file(filestruct::files_Server files_id, cons
     fclose(file);
 }
 
-void upload_json_session::gsh(std::string& strtxt)//°´ÕÕ¸ñÊ½Ğ´Èëid.json ÎÄ¼ş
-{
-    unsigned int dzkh = 0; //À¨ºÅµÄ¼ÆÊıÆ÷
-    bool isy = false; //ÊÇ²»ÊÇÒıºÅ
-    for (int i = 0; i < strtxt.length(); ++i) {
-        if (isy || strtxt[i] == '"') // "Ç°ÒıºÅ "ºóÒıºÅ
-        {
-            if (strtxt[i] == '"')
-                isy = !isy;
-            continue;
-        }
-        std::string tn = "";
-
-#define ADD_CHANGE                          \
-    for (unsigned int j = 0; j < dzkh; ++j) \
-        tn += "\t";
-
-        if (strtxt[i] == '{' || strtxt[i] == '[') {
-            dzkh++;
-            ADD_CHANGE
-                strtxt = strtxt.substr(0, i + 1) + "\n" + tn + strtxt.substr(i + 1);
-            i += dzkh + 1;
-        }
-        else if (strtxt[i] == '}' || strtxt[i] == ']') {
-            dzkh--;
-            ADD_CHANGE
-                strtxt = strtxt.substr(0, i) + "\n" + tn + strtxt.substr(i);
-            i += dzkh + 1;
-        }
-        else if (strtxt[i] == ',') {
-            ADD_CHANGE
-                strtxt = strtxt.substr(0, i + 1) + "\n" + tn + strtxt.substr(i + 1);
-            i += dzkh + 1;
-        }
-    }
-}

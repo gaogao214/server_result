@@ -45,6 +45,7 @@ void server_page::do_profile_upload()
 			{
 				ui.text_log->insertPlainText(u8"text log 信号与槽函数连接成功\n");
 			}*/
+
 			uj_->run();
 		}));
 

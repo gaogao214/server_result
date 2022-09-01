@@ -2,45 +2,13 @@
 #include "file_struct.h"
 #include "request.hpp"
 #include "response.hpp"
-//void wget_c_file_session::start()
-//{
-//	//recive_wget_c_file_name();
-//	do_opendir();
-//
-//}
 
-/*接收断点续传名字以及文本内容*/
-void wget_c_file_session::recive_wget_c_file_name()
-{
-	
-	name_text_request req;
-	
-	req.parse_bytes(buffer_);
-
-
-	ofstream wget_c_file(req.body_.name_, ios::binary);
-	wget_c_file.write(req.body_.text_,req.header_.length_);
-	wget_c_file.close();
-
-	//socket_.async_read_some(asio::buffer(refile_name, 1024),
-	//	[this](std::error_code ec, std::size_t)
-	//	{
-	//		if (!ec)
-	//		{
-	//			std::memcpy(&filelen, refile_name, sizeof(size_t));  //名字的长度
-	//			std::string file_name(refile_name + sizeof(size_t));//名字
-	//			std::cout << "接收" << file_name << "文件\n";
-	//			recive_wget_c_file(file_name);
-	//		}
-	//	});
-
-}
 
 int wget_c_file_session::read_handle(uint32_t id)
 {
 	switch (id)
 	{
-	case 1003:
+	case request_number::name_text_request:
 
 		name_text_request req;
 
@@ -59,8 +27,6 @@ int wget_c_file_session::read_handle(uint32_t id)
 /*解析json文件*/
 void wget_c_file_session::do_wget_c_file()
 {
-	//string readbuffer = send_file_context(file_name);
-	/*string readbuffer = open_json_file(file_name);*/
 	wcfi.deserializeFromJSON(readbuffer.data());
 }
 
@@ -116,39 +82,20 @@ void wget_c_file_session::send_file()
 					file.seekg(offset_, ios::beg);   //文件指针移至断点值
 					file.read(count_file_buf, nleft_);            //读4096个字符
 
-
-					//char buffer_[8192 + 1024] = { 0 };
-					//std::size_t sum_size_ = nleft_ + 8 + 8 + 8;
-
-					//std::memcpy(buffer_, &sum_size_, 8);         //字符串总长度 （名字  总序号  偏移量  内容）
-					//std::memcpy(buffer_ + 8, wget_name.data(), 8);
-					//std::memcpy(buffer_ + 16, &nchunkcount_, 8);
-					//std::memcpy(buffer_ + 24, &offset_, 8);
-					//std::memcpy(buffer_ + 32, count_file_buf, nleft_);
-
 					offset_text_response resp;
 					resp.header_.length_ = nleft_;
 					resp.header_.totoal_ = nchunkcount_;
-					std::memcpy(resp.header_.name_,wget_name.data(),wget_name.size());
+					std::memcpy(resp.header_.name_, wget_name.data(), wget_name.size());
 					resp.body_.offset_ = offset_;
 					resp.body_.set_text(count_file_buf);
 
 					std::memset(count_file_buf, 0, nleft_);
 
-					/*std::string send_wget_name_and_offset_len(buffer_);
-					write(send_wget_name_and_offset_len);*/
 					this->async_write(std::move(resp), [this](std::error_code ec, std::size_t sz)
 						{
 							if (ec)
 								return;
 						});
-				/*	asio::async_write(socket_, asio::buffer(buffer_, sum_size_ + 8),
-						[this](std::error_code ec, std::size_t sz)
-						{
-							if (ec)
-								return;
-						});*/
-
 				}
 
 			}
@@ -158,18 +105,7 @@ void wget_c_file_session::send_file()
 				char* count_file_buf = new char[remaining_total];
 				file.read(count_file_buf, remaining_total);            //读remaining_total个字符
 
-				//char buffer[8192] = { 0 };
 				std::size_t total_num = 1;
-
-				//std::size_t sum_number = remaining_total + 8 + 8 + 8;
-
-			/*	std::memcpy(buffer, &sum_number, 8);
-				std::memcpy(buffer + 8, wget_name.data(), 8);
-				std::memcpy(buffer + 16, &total_num, 8);
-				std::memcpy(buffer + 24, &wget_offset, 8);
-
-				std::memcpy(buffer + 32, count_file_buf, remaining_total);*/
-
 
 				offset_text_response resp;
 				resp.header_.length_ = remaining_total;
@@ -179,67 +115,12 @@ void wget_c_file_session::send_file()
 				resp.body_.set_text(count_file_buf);
 				std::memset(count_file_buf, 0, remaining_total);//清空内存
 
-				this->async_write(std::move(resp), [this](std::error_code ec, std::size_t sz)
-					{
-						if (ec)
-							return;
-					});
-				/*asio::async_write(socket_, asio::buffer(buffer, sum_number + 8),
-					[this](std::error_code ec, std::size_t sz)
-					{
-						if (ec)
-							return;
-					});*/
+				this->async_write(std::move(resp));
 			}
 
 		}
 	}
 }
-
-
-
-
-void wget_c_file_session::write(const std::string& msg)
-{
-	std::unique_lock lock(write_mtx_);
-	bool write_in_progress = !write_msgs_.empty();
-	write_msgs_.push_back(msg);
-	if (!write_in_progress)
-	{
-		do_write();
-	}
-}
-
-
-
-void wget_c_file_session::do_write()
-{
-
-
-	//asio::async_write(socket_, asio::buffer(write_msgs_.front().data(), write_msgs_.front().length()),
-	//	[this](std::error_code ec, std::size_t /*length*/)
-	//	{
-	//		if (!ec)
-	//		{
-	//			std::unique_lock lock(write_mtx_);
-	//			write_msgs_.pop_front();
-	//			if (!write_msgs_.empty())
-	//			{
-	//				OutputDebugString(L"s 断点续传时的文件发送成功");
-
-	//				cout << "文件发送成功\n";
-	//				do_write();
-
-	//			}
-	//		}
-	//		else
-	//		{
-	//			socket_.close();
-	//		}
-	//	});
-}
-
-
 
 
 
