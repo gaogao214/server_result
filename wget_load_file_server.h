@@ -7,6 +7,7 @@
 
 class wget_c_file_server
 	:public basic_server<wget_c_file_session>
+	,public std::enable_shared_from_this<wget_c_file_server>
 {
 public:
 	wget_c_file_server(asio::io_context& io_context, const asio::ip::tcp::endpoint& endpoint)

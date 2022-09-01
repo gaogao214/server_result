@@ -103,7 +103,7 @@ void upload_json_session::do_send_list()//发送list.json
                 {
                     //ser_ptr_->ui.text_log->insertPlainText(u8"上传list.json文件\n");
                    // ser_ptr_->ui.text_log->append(u8"上传list.hson文件");
-                    OutputDebugString(L"发送list.json");
+                    OutputDebugString(L"list.json 发送成功\n");
 
                     //cout << self->list_name << "发送成功\n";
                     do_send_id();//发送id.json名字
@@ -151,8 +151,8 @@ void upload_json_session::do_send_id()//发送id.json名字和内容
                 {
                     //ser_ptr_->ui.text_log->insertPlainText(u8"上传id.json文件\n");
 
-                    cout << id_name << "发送成功!\n";
-                    cout << "内容 >: " << send_id_file << endl;
+                    OutputDebugString(L"id.json 发送成功\n");
+
                    // recive_id_port();//接收变成服务端的id ip port
                 }
             });

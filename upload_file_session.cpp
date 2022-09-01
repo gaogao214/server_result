@@ -97,15 +97,15 @@ void upload_file_session::do_send_file(char id, const string& filename)//·¢ËÍÎÄ¼
 		{
 			if (i + 1 == nchunkcount)
 			{
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(200ms);
+				//using namespace std::chrono_literals;
+				//std::this_thread::sleep_for(200ms);
 				nleft = file_size - send_count_size * (nchunkcount - 1);
 				
 			}
 			else
 			{
-				using namespace std::chrono_literals;
-				std::this_thread::sleep_for(200ms);
+				//using namespace std::chrono_literals;
+				//std::this_thread::sleep_for(200ms);
 				nleft = send_count_size;
 				
 			}
@@ -128,6 +128,7 @@ void upload_file_session::do_send_file(char id, const string& filename)//·¢ËÍÎÄ¼
 
 
 			id_text_response it_resp;
+			
 			it_resp.header_.length_ = nleft;
 			std::memcpy(it_resp.header_.name_, filename.data(), filename.size());
 			it_resp.header_.totoal_ = nchunkcount;
@@ -143,7 +144,7 @@ void upload_file_session::do_send_file(char id, const string& filename)//·¢ËÍÎÄ¼
 				{
 					if (!ec)
 					{
-						std::cout << filename.data() << "  ÎÄ¼ş·¢ËÍ³É¹¦\n";
+						OutputDebugString(L"\n·¢ËÍ³É¹¦\n");
 
 					}
 				});

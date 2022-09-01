@@ -2,16 +2,17 @@
 #include "file_struct.h"
 #include "request.hpp"
 #include "response.hpp"
-void wget_c_file_session::start()
-{
-	recive_wget_c_file_name();
-	do_opendir();
-
-}
+//void wget_c_file_session::start()
+//{
+//	//recive_wget_c_file_name();
+//	do_opendir();
+//
+//}
 
 /*接收断点续传名字以及文本内容*/
 void wget_c_file_session::recive_wget_c_file_name()
 {
+	
 	name_text_request req;
 	
 	req.parse_bytes(buffer_);
@@ -37,16 +38,30 @@ void wget_c_file_session::recive_wget_c_file_name()
 
 int wget_c_file_session::read_handle(uint32_t id)
 {
+	switch (id)
+	{
+	case 1003:
 
+		name_text_request req;
+
+		req.parse_bytes(buffer_);
+
+		readbuffer = req.body_.text_;
+		ofstream wget_c_file(req.body_.name_, ios::binary);
+		wget_c_file.write(req.body_.text_, req.header_.length_);
+		wget_c_file.close();
+		send_file();
+		break;
+	}
 	return 0;
 }
 
 /*解析json文件*/
-void wget_c_file_session::do_wget_c_file(const string& file_name)
+void wget_c_file_session::do_wget_c_file()
 {
 	//string readbuffer = send_file_context(file_name);
-	string readbuffer = open_json_file(file_name);
-	wcfi.deserializeFromJSON(readbuffer.c_str());
+	/*string readbuffer = open_json_file(file_name);*/
+	wcfi.deserializeFromJSON(readbuffer.data());
 }
 
 /*发送 名字 偏移量 内容长度   内容*/    /*比较偏移量*/
@@ -54,7 +69,8 @@ void wget_c_file_session::send_file()
 {
 	file_size = 0;
 	remaining_total = 0;
-	//wget();
+	do_opendir();
+	do_wget_c_file();
 	for (auto& iter : wcfi.wget_c_file_list)//遍历断点续传中的文件
 	{
 		wget_name = iter.wget_name;    //名字
@@ -111,7 +127,7 @@ void wget_c_file_session::send_file()
 					//std::memcpy(buffer_ + 32, count_file_buf, nleft_);
 
 					offset_text_response resp;
-					
+					resp.header_.length_ = nleft_;
 					resp.header_.totoal_ = nchunkcount_;
 					std::memcpy(resp.header_.name_,wget_name.data(),wget_name.size());
 					resp.body_.offset_ = offset_;
@@ -156,6 +172,7 @@ void wget_c_file_session::send_file()
 
 
 				offset_text_response resp;
+				resp.header_.length_ = remaining_total;
 				resp.header_.totoal_ = total_num;
 				std::memcpy(resp.header_.name_, wget_name.data(), wget_name.size());
 				resp.body_.offset_ = wget_offset;

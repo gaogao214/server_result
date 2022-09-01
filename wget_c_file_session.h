@@ -25,13 +25,13 @@ public:
 	}
 
 	
-	void start();
+	//void start();
 
 	void recive_wget_c_file_name();
 
 
 
-	void do_wget_c_file(const string& file_name);
+	void do_wget_c_file();
 
 	void send_file();
 
@@ -139,6 +139,8 @@ private:
 	std::size_t nchunkcount_;
 	std::size_t nleft_;
 
+
+	std::string readbuffer;
 };
 
 

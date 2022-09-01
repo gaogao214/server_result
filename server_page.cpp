@@ -1,11 +1,12 @@
 #include "asio.hpp"
 
 #include "server_page.h"
-#include "upload_json_session.h"
-#include "wget_c_file_session.h"
+//#include "upload_json_session.h"
+//#include "wget_c_file_session.h"
 #include <QPushbutton>
 #include <QPainter>
 #include "upload_file_server.h"
+#include "wget_load_file_server.h"
 server_page::server_page(QWidget* parent)
 	: QMainWindow(parent)
 {
@@ -52,14 +53,15 @@ void server_page::do_profile_upload()
 
 void server_page::create_reset_upload()
 {
-	/*std::thread t1([this]()
+	std::thread t1([this]()
 		{
 			asio::ip::tcp::endpoint endpoint_1(asio::ip::tcp::v4(), std::atoi("12313"));
-			wget_c_file_accept s(io_context_go_on, endpoint_1);
-			io_context_go_on.run();
+			auto wcfs=std::make_shared<wget_c_file_server>(io_context_go_on, endpoint_1);
+			wcfs->run();
+			//io_context_go_on.run();
 		});
 
-	t1.detach();*/
+	t1.detach();
 
 	//ui.reset_upload->setText(u8"断点续传已启动");
 	//ui.reset_upload->setEnabled(false);
@@ -72,8 +74,8 @@ void server_page::do_upload_file()
 			asio::ip::tcp::endpoint _endpoint(asio::ip::tcp::v4(), std::atoi("12314"));
 
 			auto cs = std::make_shared<upload_file_server>(io_context_upload, _endpoint);
-			
-			io_context_upload.run();
+			cs->run();
+		//	io_context_upload.run();
 		});
 
 	t2.detach();
