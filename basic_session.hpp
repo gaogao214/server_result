@@ -75,7 +75,7 @@ private:
 	void do_read_body(uint32_t id)
 	{
 
-		asio::async_read(socket_, asio::buffer(buffer_, 8192),//(接收名字时，接收过多，所以导致下一次接收时，接收不到)
+		asio::async_read(socket_, asio::buffer(buffer_, 8192+1024),//(接收名字时，接收过多，所以导致下一次接收时，接收不到)
 			[&,this](std::error_code ec, std::size_t bytes_transferred)
 			{
 				/*if (!ec)

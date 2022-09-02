@@ -51,6 +51,7 @@ static constexpr char id_name_[32] = "id.json";
 
 inline filestruct::profile profile_;
 inline filestruct::files_Server files_id;
+inline filestruct::wget_c_file_info wcfi;  
 
 inline std::string open_json_file(const std::string& json_name)//打开指定名称的json文本
 {
@@ -76,6 +77,11 @@ inline void  parse_id_json()          //打开id_json文件 解析id.json得到IP port
 {
 	std::string readbuffer = open_json_file(id_name_);
 	files_id.deserializeFromJSON(readbuffer.c_str());
+}
+
+inline void do_wget_c_file(const std::string& readbuffer)
+{
+	wcfi.deserializeFromJSON(readbuffer.data());
 }
 
 inline int get_file_len(const std::string& filename)//获取文本的长度

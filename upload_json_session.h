@@ -42,14 +42,16 @@ protected:
 
 private:
 
-	void do_send_list();//发送 list.json 名字长度和名字
+	void do_send_list();
 
-	void do_send_id();//发送 id.json 名字长度和名字
+	void do_send_id();
 
 	void delete_ip_port(filestruct::ip_and_port delete_ip_port);
 
-	void save_file_server_ip_port_id_json();//在id.json里添加传输(a.txt...)的服务器ip port
+	void save_file_server_ip_port_id_json();
 
+private:
+	filestruct::ip_and_port save_ip_port;
 
 };
 

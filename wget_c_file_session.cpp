@@ -3,6 +3,7 @@
 #include "request.hpp"
 #include "response.hpp"
 
+static constexpr std::size_t send_size = 8192;
 
 int wget_c_file_session::read_handle(uint32_t id)
 {
@@ -14,50 +15,50 @@ int wget_c_file_session::read_handle(uint32_t id)
 
 		req.parse_bytes(buffer_);
 
-		readbuffer = req.body_.text_;
-		ofstream wget_c_file(req.body_.name_, ios::binary);
+		std::ofstream wget_c_file(req.body_.name_, std::ios::binary);
 		wget_c_file.write(req.body_.text_, req.header_.length_);
 		wget_c_file.close();
+
+		do_wget_c_file(req.body_.text_);
+
 		send_file();
 		break;
 	}
 	return 0;
 }
 
-/*解析json文件*/
-void wget_c_file_session::do_wget_c_file()
-{
-	wcfi.deserializeFromJSON(readbuffer.data());
-}
 
-/*发送 名字 偏移量 内容长度   内容*/    /*比较偏移量*/
+
 void wget_c_file_session::send_file()
 {
-	file_size = 0;
-	remaining_total = 0;
+	size_t file_size = 0;
+
+	size_t remaining_total = 0 ;   
+
+	std::size_t nleft_=0;
+
 	do_opendir();
-	do_wget_c_file();
-	for (auto& iter : wcfi.wget_c_file_list)//遍历断点续传中的文件
+	for (auto& iter : wcfi.wget_c_file_list)
 	{
-		wget_name = iter.wget_name;    //名字
-		wget_offset = iter.offset;     //偏移量                            
-		file_path_name = profile_.path + "\\" + wget_name;  //找到断点时 本地的文件
+		auto wget_name = iter.wget_name;    
+		auto wget_offset = iter.offset;                               
+		std::string file_path_name = profile_.path + "\\" + wget_name;  
 
-		file_size = get_file_len(file_path_name);          //计算文件长度
+		file_size = get_file_len(file_path_name);         
 
-		ifstream file(file_path_name.c_str(), ios::in | ios::binary);      //打开文件
-		if (!file.is_open())//检查文件是否存在
+		std::ifstream file(file_path_name.c_str(), std::ios::in | std::ios::binary);
+		if (!file.is_open())
 			return;
 
 
 
 		if (wget_offset < file_size)
 		{
-			remaining_total = file_size - wget_offset;   //计算余下的长度
+			remaining_total = file_size - wget_offset;   
 
 			if (remaining_total > send_size)
 			{
-				nchunkcount_ = remaining_total / send_size;	//文件块数	=  文件总长度 / 一次读到的大小
+				nchunkcount_ = remaining_total / send_size;
 
 				if (remaining_total % nchunkcount_ != 0)
 				{
@@ -79,8 +80,8 @@ void wget_c_file_session::send_file()
 					char* count_file_buf = new char[nleft_];
 
 					std::size_t offset_ = i * send_size + wget_offset;
-					file.seekg(offset_, ios::beg);   //文件指针移至断点值
-					file.read(count_file_buf, nleft_);            //读4096个字符
+					file.seekg(offset_, std::ios::beg);   
+					file.read(count_file_buf, nleft_);          
 
 					offset_text_response resp;
 					resp.header_.length_ = nleft_;
@@ -101,9 +102,9 @@ void wget_c_file_session::send_file()
 			}
 			else if (remaining_total < send_size)
 			{
-				remaining_total = file_size - wget_offset;   //计算余下的长度
+				remaining_total = file_size - wget_offset;   
 				char* count_file_buf = new char[remaining_total];
-				file.read(count_file_buf, remaining_total);            //读remaining_total个字符
+				file.read(count_file_buf, remaining_total);           
 
 				std::size_t total_num = 1;
 
@@ -113,7 +114,7 @@ void wget_c_file_session::send_file()
 				std::memcpy(resp.header_.name_, wget_name.data(), wget_name.size());
 				resp.body_.offset_ = wget_offset;
 				resp.body_.set_text(count_file_buf);
-				std::memset(count_file_buf, 0, remaining_total);//清空内存
+				std::memset(count_file_buf, 0, remaining_total);
 
 				this->async_write(std::move(resp));
 			}

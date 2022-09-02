@@ -16,7 +16,8 @@ int upload_file_session::read_handle(uint32_t id)
 		req.parse_bytes(buffer_);
 		auto _id = req.body_.id_;
 		auto file_name = req.body_.name_;
-
+		OutputDebugStringA(file_name);
+		OutputDebugString(L"接收成功\n");
 
 		do_send_file(_id, file_name);
 		Sleep(2);
@@ -29,7 +30,7 @@ int upload_file_session::read_handle(uint32_t id)
 	return 0;
 }
 
-void upload_file_session::do_send_file(char id, const string& filename)
+void upload_file_session::do_send_file(uint32_t id, const string& filename)
 {
 	std::size_t file_size = 0;
 	std::string file_path_name = profile_.path + "\\" + filename;
@@ -77,7 +78,7 @@ void upload_file_session::do_send_file(char id, const string& filename)
 			std::memcpy(it_resp.header_.name_, filename.data(), filename.size());
 			it_resp.header_.totoal_ = nchunkcount;
 			it_resp.body_.id_ = id;
-			it_resp.body_.set_const_text_(count_file_buf.get());
+			it_resp.body_.set_text_(count_file_buf.get());
 
 			this->async_write(std::move(it_resp), [this, filename](std::error_code ec, std::size_t sz)
 				{
@@ -101,7 +102,7 @@ void upload_file_session::do_send_file(char id, const string& filename)
 		std::memcpy(it_resp.header_.name_, filename.data(), filename.size());
 		it_resp.header_.length_ = nleft;
 		it_resp.body_.id_ = id;
-		it_resp.body_.set_const_text_(count_file_buf.get());
+		it_resp.body_.set_text_(count_file_buf.get());
 
 		this->async_write(std::move(it_resp), [this, filename](std::error_code ec, std::size_t sz)
 			{
