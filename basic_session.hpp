@@ -1,6 +1,8 @@
 #pragma once
 #include "asio.hpp"
 
+static constexpr std::size_t size_ = 8192 + 1024 + sizeof(uint32_t);
+
 class basic_session
 {
 public:
@@ -33,13 +35,14 @@ public:
 	{
 		constexpr auto id = _Response::Number;
 
-		std::array<char, 8192+1024+sizeof(uint32_t)> arr{};
+		std::array<char, size_> arr{};
 
 		std::memcpy(arr.data(), &id, sizeof(uint32_t));
 
 		resp.to_bytes(arr.data() + sizeof(uint32_t));
 
 		async_write(arr, std::forward<_Handle>(handle));
+		arr.fill(0);
 	}
 
 	template<typename _Response>
@@ -60,6 +63,8 @@ private:
 			{
 				if (ec)
 				{
+					
+					 OutputDebugStringA(ec.message().data());
 					return;
 				}
 
@@ -75,7 +80,7 @@ private:
 	void do_read_body(uint32_t id)
 	{
 
-		asio::async_read(socket_, asio::buffer(buffer_, 8192+1024),//(接收名字时，接收过多，所以导致下一次接收时，接收不到)
+		asio::async_read(socket_, asio::buffer(buffer_, size_-sizeof(uint32_t)),
 			[&,this](std::error_code ec, std::size_t bytes_transferred)
 			{
 				/*if (!ec)
@@ -97,7 +102,7 @@ private:
 
 
 protected:
-	std::array<char, 8192+sizeof(uint32_t)+1024> buffer_;
+	std::array<char, size_> buffer_;
 	asio::ip::tcp::socket socket_;
 	uint32_t proto_id{};
 

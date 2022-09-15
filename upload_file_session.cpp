@@ -20,8 +20,9 @@ int upload_file_session::read_handle(uint32_t id)
 		OutputDebugString(L"接收成功\n");
 
 		do_send_file(_id, file_name);
-		Sleep(2);
 
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(200ms);
 
 		break;
 	}
@@ -35,7 +36,8 @@ void upload_file_session::do_send_file(uint32_t id, const string& filename)
 	std::size_t file_size = 0;
 	std::string file_path_name = profile_.path + "\\" + filename;
 
-	Sleep(2);
+	using namespace std::chrono_literals;
+	std::this_thread::sleep_for(200ms);
 
 	ifstream file(file_path_name.c_str(), ios::in | ios::binary);
 	if (!file.is_open())
@@ -75,16 +77,19 @@ void upload_file_session::do_send_file(uint32_t id, const string& filename)
 			id_text_response it_resp;
 
 			it_resp.header_.length_ = nleft;
-			std::memcpy(it_resp.header_.name_, filename.data(), filename.size());
+			it_resp.header_.set_name(filename);
 			it_resp.header_.totoal_ = nchunkcount;
 			it_resp.body_.id_ = id;
-			it_resp.body_.set_text_(count_file_buf.get());
+			it_resp.body_.set_text_(count_file_buf.get()); //查看count_file_buf是否是空
+
+
 
 			this->async_write(std::move(it_resp), [this, filename](std::error_code ec, std::size_t sz)
 				{
 					if (!ec)
 					{
-						OutputDebugString(L"\n发送成功\n");
+						OutputDebugStringA(filename.data());
+						OutputDebugString(L"发送成功\n");
 					}
 				});
 		}
@@ -98,20 +103,17 @@ void upload_file_session::do_send_file(uint32_t id, const string& filename)
 		file.read(count_file_buf.get(), nleft);
 
 		id_text_response it_resp;
-
-		std::memcpy(it_resp.header_.name_, filename.data(), filename.size());
+		it_resp.header_.set_name(filename);
 		it_resp.header_.length_ = nleft;
 		it_resp.body_.id_ = id;
-		it_resp.body_.set_text_(count_file_buf.get());
+		it_resp.body_.set_text_(count_file_buf.get());//查看count_file_buf是否是空
 
 		this->async_write(std::move(it_resp), [this, filename](std::error_code ec, std::size_t sz)
 			{
 				if (!ec)
 				{
-					OutputDebugString(L"\n");
 					OutputDebugStringA(filename.data());
-					OutputDebugString(L"\n");
-
+					OutputDebugString(L"发送成功\n");
 				}
 			});
 	}

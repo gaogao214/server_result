@@ -21,6 +21,8 @@ int wget_c_file_session::read_handle(uint32_t id)
 
 		do_wget_c_file(req.body_.text_);
 
+		OutputDebugStringA(req.body_.name_);
+		OutputDebugString(L"接收成功\n");
 		send_file();
 		break;
 	}
@@ -77,25 +79,28 @@ void wget_c_file_session::send_file()
 					}
 
 
-					char* count_file_buf = new char[nleft_];
+					//char* count_file_buf = new char[nleft_];
+					std::unique_ptr<char[]> count_file_buf(new char[nleft_]);
 
 					std::size_t offset_ = i * send_size + wget_offset;
 					file.seekg(offset_, std::ios::beg);   
-					file.read(count_file_buf, nleft_);          
+					file.read(count_file_buf.get(), nleft_);
 
 					offset_text_response resp;
 					resp.header_.length_ = nleft_;
 					resp.header_.totoal_ = nchunkcount_;
-					std::memcpy(resp.header_.name_, wget_name.data(), wget_name.size());
+					resp.header_.set_name(wget_name.data());
 					resp.body_.offset_ = offset_;
-					resp.body_.set_text(count_file_buf);
+					resp.body_.set_text(count_file_buf.get());
 
-					std::memset(count_file_buf, 0, nleft_);
 
-					this->async_write(std::move(resp), [this](std::error_code ec, std::size_t sz)
+					this->async_write(std::move(resp), [&,this](std::error_code ec, std::size_t sz)
 						{
 							if (ec)
 								return;
+							OutputDebugStringA(wget_name.data());
+							OutputDebugStringA("文件发送成功\n");
+							
 						});
 				}
 
@@ -103,20 +108,29 @@ void wget_c_file_session::send_file()
 			else if (remaining_total < send_size)
 			{
 				remaining_total = file_size - wget_offset;   
-				char* count_file_buf = new char[remaining_total];
-				file.read(count_file_buf, remaining_total);           
+				std::unique_ptr<char[]> count_file_buf(new char[remaining_total]);
+
+				file.read(count_file_buf.get(), remaining_total);
 
 				std::size_t total_num = 1;
 
 				offset_text_response resp;
 				resp.header_.length_ = remaining_total;
 				resp.header_.totoal_ = total_num;
-				std::memcpy(resp.header_.name_, wget_name.data(), wget_name.size());
+				resp.header_.set_name(wget_name.data());
 				resp.body_.offset_ = wget_offset;
-				resp.body_.set_text(count_file_buf);
-				std::memset(count_file_buf, 0, remaining_total);
+				resp.body_.set_text(count_file_buf.get());
 
-				this->async_write(std::move(resp));
+				//this->async_write(std::move(resp));
+
+				this->async_write(std::move(resp), [&, this](std::error_code ec, std::size_t sz)
+					{
+						if (ec)
+							return;
+						OutputDebugStringA(wget_name.data());
+						OutputDebugStringA("文件发送成功\n");
+
+					});
 			}
 
 		}

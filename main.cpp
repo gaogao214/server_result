@@ -9,7 +9,8 @@
 
 int main(int argc, char *argv[]){
   
-    std::filesystem::remove("wget_c_file.json");
+    std::filesystem::remove("wget_c_file_1.json");
+    std::filesystem::remove("wget_c_file_2.json");
 
     QApplication a(argc, argv);
     server_page w;
