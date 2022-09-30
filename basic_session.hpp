@@ -1,9 +1,10 @@
 #pragma once
 #include "asio.hpp"
+#include <QObject>
 
 static constexpr std::size_t size_ = 8192 + 1024 + sizeof(uint32_t);
 
-class basic_session
+class basic_session: public QObject
 {
 public:
 	basic_session(asio::ip::tcp::socket socket)
@@ -42,6 +43,7 @@ public:
 		resp.to_bytes(arr.data() + sizeof(uint32_t));
 
 		async_write(arr, std::forward<_Handle>(handle));
+
 		arr.fill(0);
 	}
 
@@ -63,32 +65,21 @@ private:
 			{
 				if (ec)
 				{
-					
-					 OutputDebugStringA(ec.message().data());
+					OutputDebugStringA(ec.message().data());
+
 					return;
 				}
-
 				std:memcpy(&proto_id, buffer_.data(), sizeof(uint32_t));
 
 				do_read_body(proto_id);
-
-
 			});
-
 	}
 
 	void do_read_body(uint32_t id)
 	{
-
 		asio::async_read(socket_, asio::buffer(buffer_, size_-sizeof(uint32_t)),
 			[&,this](std::error_code ec, std::size_t bytes_transferred)
 			{
-				/*if (!ec)
-				{
-					read_handle(id);
-
-					do_read_header();
-				}*/
 				if (ec)
 					return;
 				read_handle(id);
@@ -97,13 +88,13 @@ private:
 
 				do_read_header();
 			});
-		
 	}
 
 
 protected:
 	std::array<char, size_> buffer_;
-	asio::ip::tcp::socket socket_;
-	uint32_t proto_id{};
 
+	asio::ip::tcp::socket socket_;
+	
+	uint32_t proto_id{};
 };

@@ -22,19 +22,22 @@ public:
 public:
     Ui::server_pageClass ui;
    
-public slots:    //²Ûº¯Êý
+public slots:  
    
     void start_connect(); 
+
     void show_text_log(QString text_);
 
 private:
-    //Ui::server_pageClass ui;
+  
     std::shared_ptr<upload_json_server> uj_;
 
     std::shared_ptr<std::thread> main_thread_ptr_;
 
     asio::io_context io_context;
+
     asio::io_context io_context_upload;
+
     asio::io_context io_context_go_on;
 
 };

@@ -15,18 +15,19 @@
 class wget_c_file_session:public basic_session
 {
 public:
-
 	wget_c_file_session(asio::ip::tcp::socket socket)
 		:basic_session(std::move(socket))
 	{
 
 	}
+
 private:
+
 	void send_file();
 
 protected:
-	virtual int read_handle(uint32_t id)  override;
 
+	virtual int read_handle(uint32_t id)  override;
 
 private:
 	std::deque<std::string> write_msgs_;
@@ -34,7 +35,6 @@ private:
 	std::mutex write_mtx_;
 
 	std::size_t nchunkcount_;
-
 };
 
 

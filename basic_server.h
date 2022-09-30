@@ -6,7 +6,6 @@
 template<typename _Session>
 class basic_server :public QObject
 {
-	//Q_OBJECT
 public:
 	explicit basic_server(asio::io_context& io_context, const asio::ip::tcp::endpoint& endpoint/*,server_page* sep_*/)
 		:io_context_(io_context)
@@ -26,6 +25,7 @@ public:
 	{
 		io_context_.run();
 	}
+
 private:
 	void do_accept()
 	{
@@ -35,7 +35,9 @@ private:
 				if (!ec)
 				{
 					auto s = std::make_shared<_Session>(std::move(socket));
+
 					s->start();
+
 					sessions_.push_back(s);
 				}
 					
@@ -50,7 +52,9 @@ protected:
 
 private:
 	asio::ip::tcp::socket socket_;
+
 	asio::ip::tcp::acceptor acceptor_;
+
 	asio::io_context& io_context_;
 
 	std::vector<std::shared_ptr<_Session>> sessions_;

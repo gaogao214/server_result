@@ -9,13 +9,15 @@
 
 void upload_json_session::delete_all_ip_port()      
 {
-
     parse_id_json();
+
     for (auto& iter : files_id.blocks)
     {
         iter.second.server.erase(iter.second.server.begin(), iter.second.server.end());
     }
+
     save_json_file(files_id, id_name_);
+
     parse_id_json();
 }
 
@@ -23,31 +25,40 @@ void upload_json_session::save_file_server_ip_port_id_json()
 {
 
     filestruct::ip_and_port first_ip_port;
+
     first_ip_port.ip = socket_.local_endpoint().address().to_string();
     first_ip_port.port = profile_.port;
+
     for (auto& iter : files_id.blocks)
     {
-       
         iter.second.server.insert(first_ip_port);
     }
+
     save_json_file(files_id, id_name_); 
+
     do_send_list();
 }
 
 void upload_json_session::do_send_list()
 {
     std::string list_buf = get_file_context(list_name_);
+    std::size_t buf_len=get_file_len(list_name_);
 
     name_text_response resp;
+
     resp.header_.set_name(list_name_);
     resp.body_.set_name_text(list_buf);
-    //auto self = shared_from_this();
+    resp.header_.totoal_length_ = buf_len;
+
     async_write(std::move(resp),
         [this](std::error_code ec, std::size_t sz)
             {
                 if (!ec)
                 {
-                    OutputDebugString(L"list.json 发送成功\n");
+                    std::string str(u8"list.json 发送成功\n");
+                    QString qstr = QString::fromStdString(str);
+                    
+                    emit sign_text_log(qstr);
 
                     do_send_id();
                 }
@@ -58,11 +69,14 @@ void upload_json_session::do_send_id()
 {
 
     std::string id_buf = get_file_context(id_name_);
+    std::size_t buf_len = get_file_len(id_name_);
 
     name_text_response resp;
+
     resp.header_.set_name(id_name_);
+    resp.header_.totoal_length_ = buf_len;
     resp.body_.set_name_text(id_buf);
-    //auto self = shared_from_this();
+
     this->async_write(std::move(resp),[this](std::error_code ec, std::size_t sz)
             {
                 if (!ec)
@@ -76,16 +90,20 @@ int upload_json_session::read_handle(uint32_t id)
 {
     switch (id)
     {
-    case request_number::id_port_request:
+    case uint32_t(request_number::id_port_request):
 
 
         id_port_request req;
+
         req.parse_bytes(buffer_);
 
         id = req.body_.id_;
         save_ip_port.ip = socket_.local_endpoint().address().to_string();
+
         save_ip_port.port = req.body_.port_;
+
         files_id.blocks[id].server.insert(save_ip_port);
+
         save_json_file(files_id, id_name_);
 
         break;
@@ -116,11 +134,20 @@ void upload_json_session::save_json_file(filestruct::files_Server files_id, cons
 {
     std::string text = RapidjsonToString(files_id.serializeToJSON());
     json_formatting(text);
-    auto file = fopen(name.c_str(), "wb");
-    const char* t = text.c_str();
-    size_t length = text.length();
-    fwrite(t, length, 1, file);
-    fflush(file);
-    fclose(file);
+    
+    save_file(name.c_str(),text.c_str());
 }
 
+void upload_json_session::save_file(const char* name, const char* file_buf)
+{
+    volatile int len = 0;
+
+    std::ofstream save_file_(name, std::ios::out | std::ios::binary);
+
+    if (file_buf != nullptr)
+        save_file_.write(file_buf, strlen(file_buf) - len);
+
+    save_file_.flush();
+    save_file_.close();
+
+}
