@@ -45,7 +45,6 @@ private:
 			});
 	}
 
-
 protected:
 	std::array<char, 8192 + 1024> buffer_;
 

@@ -15,8 +15,10 @@ public:
 	}
 
 private:
-	void do_send_file(uint32_t id, const string& filename);
+	void do_send_file(uint32_t id, const std::string& filename);
 
 protected:
 	virtual int read_handle(uint32_t id)  override;
+
+	virtual int read_error() override;
 };

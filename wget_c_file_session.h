@@ -29,6 +29,7 @@ protected:
 
 	virtual int read_handle(uint32_t id)  override;
 
+	virtual int read_error() override;
 private:
 	std::deque<std::string> write_msgs_;
 

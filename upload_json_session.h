@@ -27,16 +27,15 @@ public:
 
 		save_file_server_ip_port_id_json();
 	}
-
-	void save_json_file(filestruct::files_Server files_id, const std::string& name);
+	
+	template <typename _TSTRUCT>
+	void save_json_file(/*filestruct::files_Server*/_TSTRUCT files_id, const std::string& name);
 
 	void delete_all_ip_port();
 
 protected:
 	virtual int read_handle(uint32_t id)  override;
-
-signals:
-	void sign_text_log(QString text_);
+	virtual int read_error() override;
 
 private:
 

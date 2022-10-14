@@ -11,7 +11,7 @@ server_page::server_page(QWidget* parent)
 
 	qRegisterMetaType<QTextCursor>("QTextCursor");
 
-	connect(ui.connect, &QPushButton::clicked, this, &server_page::start_connect);  
+	connect(ui.connect, &QPushButton::clicked, this, &server_page::start_connect);
 }
 
 server_page::~server_page()
@@ -19,6 +19,8 @@ server_page::~server_page()
 
 void server_page::start_connect()
 {
+	ui.connect->setEnabled(false);
+
 	do_profile_upload();
 
 	do_upload_file();
@@ -35,12 +37,6 @@ void server_page::do_profile_upload()
 			asio::ip::tcp::endpoint endpoint(asio::ip::tcp::v4(), std::atoi("12312"));
 
 			uj_ = std::make_shared<upload_json_server>(io_context, endpoint);
-
-			/*QMetaObject::Connection connect_text_log=QObject::connect(uj_.get(),SIGNAL(sign_text_log(QString)),this,SLOT(show_text_log(QString)),Qt::DirectConnection);
-			if (connect_text_log)
-			{
-				ui.text_log->insertPlainText(u8"text log 信号与槽函数连接成功\n");
-			}*/
 
 			uj_->run();
 		}));
@@ -76,7 +72,4 @@ void server_page::do_upload_file()
 	t2.detach();
 }
 
-void server_page::show_text_log(QString text_)
-{
-	ui.text_log->insertPlainText(text_);
-}
+

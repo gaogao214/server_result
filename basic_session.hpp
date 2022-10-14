@@ -57,6 +57,8 @@ public:
 protected:
 	virtual int read_handle(uint32_t) = 0;
 
+	virtual int read_error() = 0 ;
+
 private:
 	void do_read_header()
 	{
@@ -66,6 +68,8 @@ private:
 				if (ec)
 				{
 					OutputDebugStringA(ec.message().data());
+
+					read_error();
 
 					return;
 				}

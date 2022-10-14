@@ -12,6 +12,24 @@
 
 namespace filestruct {
 
+	struct list_json
+	{
+		std::string path;
+		uint32_t version;
+		uint32_t blockid;
+		uint32_t filesize = 0;
+
+		GX_JSON(path, version, blockid, filesize);
+
+	};
+
+	struct file_info
+	{
+		std::vector<list_json> file_list;
+
+		GX_JSON(file_list);
+	};
+
 	struct ip_and_port {
 		std::string ip;
 		std::string port;
@@ -59,6 +77,7 @@ static constexpr char id_name_[32] = "id.json";
 
 inline filestruct::profile profile_;
 inline filestruct::files_Server files_id;
+inline filestruct::file_info file_server;
 inline filestruct::wget_c_file_info wcfi;  
 
 inline std::string open_json_file(const std::string& json_name)
@@ -77,8 +96,14 @@ inline std::string open_json_file(const std::string& json_name)
 }
 inline void do_opendir()
 {
-	std::string readbuffer = open_json_file("open.json");
+	std::string readbuffer = open_json_file(profile_name);
 	profile_.deserializeFromJSON(readbuffer.c_str());
+}
+
+inline void parse_list_json()
+{
+	std::string readbuffer = open_json_file(list_name_);
+	file_server.deserializeFromJSON(readbuffer.c_str());
 }
 
 inline void  parse_id_json()          

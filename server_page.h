@@ -26,8 +26,6 @@ public slots:
    
     void start_connect(); 
 
-    void show_text_log(QString text_);
-
 private:
   
     std::shared_ptr<upload_json_server> uj_;

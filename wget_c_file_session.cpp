@@ -33,7 +33,11 @@ int wget_c_file_session::read_handle(uint32_t id)
 	return 0;
 }
 
+int wget_c_file_session::read_error()
+{
 
+	return 0;
+}
 
 void wget_c_file_session::send_file()
 {

@@ -23,6 +23,7 @@ void upload_json_session::delete_all_ip_port()
 
 void upload_json_session::save_file_server_ip_port_id_json()
 {
+    parse_list_json();
 
     filestruct::ip_and_port first_ip_port;
 
@@ -36,13 +37,23 @@ void upload_json_session::save_file_server_ip_port_id_json()
 
     save_json_file(files_id, id_name_); 
 
+    for (auto& it : file_server.file_list)
+    {
+        auto file_name = profile_.path + "\\" + it.path;
+        int file_size_ = get_file_len(file_name);
+        it.filesize = file_size_;
+
+    }
+
+    save_json_file(file_server,list_name_);
+
     do_send_list();
 }
 
 void upload_json_session::do_send_list()
 {
     std::string list_buf = get_file_context(list_name_);
-    std::size_t buf_len=get_file_len(list_name_);
+    std::size_t buf_len = get_file_len(list_name_);
 
     name_text_response resp;
 
@@ -55,11 +66,6 @@ void upload_json_session::do_send_list()
             {
                 if (!ec)
                 {
-                    std::string str(u8"list.json ·¢ËÍ³É¹¦\n");
-                    QString qstr = QString::fromStdString(str);
-                    
-                    emit sign_text_log(qstr);
-
                     do_send_id();
                 }
             });
@@ -67,7 +73,6 @@ void upload_json_session::do_send_list()
 
 void upload_json_session::do_send_id()
 {
-
     std::string id_buf = get_file_context(id_name_);
     std::size_t buf_len = get_file_len(id_name_);
 
@@ -112,6 +117,14 @@ int upload_json_session::read_handle(uint32_t id)
 
     return  0;
 }
+
+int upload_json_session::read_error()
+{
+
+   delete_ip_port(save_ip_port);
+    return 0;
+}
+
 void upload_json_session::delete_ip_port(filestruct::ip_and_port delete_ip_port)
 {
     for (auto& iter : files_id.blocks)
@@ -130,7 +143,8 @@ void upload_json_session::delete_ip_port(filestruct::ip_and_port delete_ip_port)
     save_json_file(files_id, id_name_);     
 }
 
-void upload_json_session::save_json_file(filestruct::files_Server files_id, const std::string& name)
+template<typename _TSTRUCT>
+void upload_json_session::save_json_file(/*filestruct::files_Server*/_TSTRUCT files_id, const std::string& name)
 {
     std::string text = RapidjsonToString(files_id.serializeToJSON());
     json_formatting(text);
